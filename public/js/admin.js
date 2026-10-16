@@ -98,6 +98,21 @@
     return span;
   }
 
+  const BADGE_LABELS = {
+    popular: 'Popular',
+    best_choice: 'Best Choice',
+    chefs_choice: "Chef's Choice",
+  };
+
+  function badgeTag(badge) {
+    const label = BADGE_LABELS[badge];
+    if (!label) return null;
+    const span = document.createElement('span');
+    span.className = `tag tag--badge tag--badge-${badge}`;
+    span.textContent = label;
+    return span;
+  }
+
   function confirmDialog(title, message, confirmLabel) {
     return new Promise((resolve) => {
       $('confirm-title').textContent = title;
@@ -224,6 +239,13 @@
     $('app-view').classList.add('is-hidden');
     $('login-view').classList.remove('is-hidden');
     $('login-password').value = '';
+    $('login-password').type = 'password';
+    const toggle = $('login-password-toggle');
+    toggle.setAttribute('aria-pressed', 'false');
+    toggle.setAttribute('aria-label', 'Show password');
+    toggle.title = 'Show password';
+    toggle.querySelector('.password-toggle__show').classList.remove('is-hidden');
+    toggle.querySelector('.password-toggle__hide').classList.add('is-hidden');
   }
 
   function showApp() {
@@ -255,6 +277,8 @@
         ['Dishes', data.dishes],
         ['Available', data.available],
         ['Popular', data.popular],
+        ['Best Choice', data.best_choice],
+        ["Chef's Choice", data.chefs_choice],
       ];
       const container = $('stats');
       container.textContent = '';
@@ -464,9 +488,18 @@
     if (dish.section_name) parts.push(dish.section_name);
     parts.push(formatPrice(dish.price));
     meta.textContent = '';
+    let hasTag = false;
     const tag = dietTag(dish.diet);
-    if (tag) meta.appendChild(tag);
-    meta.appendChild(document.createTextNode(`${tag ? ' ' : ''}${parts.join(' · ')}`));
+    if (tag) {
+      meta.appendChild(tag);
+      hasTag = true;
+    }
+    const badge = badgeTag(dish.badge);
+    if (badge) {
+      meta.appendChild(badge);
+      hasTag = true;
+    }
+    meta.appendChild(document.createTextNode(`${hasTag ? ' ' : ''}${parts.join(' · ')}`));
 
     const img = node.querySelector('img.dish-thumb');
     const placeholder = node.querySelector('.dish-thumb--empty');
@@ -484,17 +517,6 @@
 
     if (!compact) {
       const actions = node.querySelector('.row__actions');
-      const popular = document.createElement('button');
-      popular.type = 'button';
-      popular.className = 'icon-btn';
-      popular.innerHTML =
-        '<svg viewBox="0 0 24 24" fill="' +
-        (dish.is_popular ? 'currentColor' : 'none') +
-        '" aria-hidden="true"><path d="M12 3.6l2.5 5.14 5.66.82-4.08 3.98.96 5.64L12 16.53l-5.04 2.65.96-5.64L3.84 9.56l5.66-.82L12 3.6Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>';
-      popular.title = dish.is_popular ? 'Unmark popular' : 'Mark popular';
-      popular.setAttribute('aria-label', popular.title);
-      popular.addEventListener('click', () => toggleDish(dish, 'is_popular', !dish.is_popular));
-      actions.insertBefore(popular, actions.firstChild);
 
       const avail = document.createElement('label');
       avail.className = 'switch';
@@ -620,7 +642,7 @@
   let editingDish = null;
 
   function clearDishErrors() {
-    for (const id of ['dish-name-error', 'dish-description-error', 'dish-price-error', 'dish-section-error', 'dish-diet-error', 'dish-image-error']) {
+    for (const id of ['dish-name-error', 'dish-description-error', 'dish-price-error', 'dish-section-error', 'dish-diet-error', 'dish-badge-error', 'dish-image-error']) {
       $(id).textContent = '';
     }
     const banner = $('dish-error');
@@ -637,10 +659,8 @@
     $('dish-description').value = dish && dish.description ? dish.description : '';
     $('dish-price').value = dish ? formatPrice(dish.price) : '';
     $('dish-diet').value = dish ? dish.diet : 'veg';
+    $('dish-badge').value = dish ? dish.badge : 'none';
     $('dish-available').checked = dish ? dish.is_available : true;
-    $('dish-popular').checked = dish ? Boolean(dish.is_popular) : false;
-    $('dish-remove-image').checked = false;
-    $('dish-remove-image').closest('.switch').classList.toggle('is-hidden', !dish || !dish.image_url);
     $('dish-dialog-title').textContent = dish ? 'Edit dish' : 'New dish';
 
     renderSectionFilter();
@@ -671,8 +691,7 @@
     clearDishErrors();
 
     const file = $('dish-image').files[0];
-    const removeImage = $('dish-remove-image').checked;
-    const useMultipart = Boolean(file) || removeImage;
+    const useMultipart = Boolean(file);
 
     const fields = {
       name: $('dish-name').value,
@@ -680,8 +699,8 @@
       price: $('dish-price').value,
       section_id: $('dish-section').value,
       diet: $('dish-diet').value,
+      badge: $('dish-badge').value,
       is_available: $('dish-available').checked,
-      is_popular: $('dish-popular').checked,
     };
 
     const button = $('dish-submit');
@@ -695,7 +714,6 @@
         const form = new FormData();
         for (const [key, value] of Object.entries(fields)) form.append(key, String(value));
         if (file) form.append('image', await prepareImage(file, 1280));
-        if (removeImage) form.append('remove_image', '1');
         ({ status, data } = await api(editingDish ? `/api/admin/dishes/${editingDish.id}` : '/api/admin/dishes', {
           method: editingDish ? 'PUT' : 'POST',
           form,
@@ -723,6 +741,7 @@
         if (errors.price) $('dish-price-error').textContent = errors.price;
         if (errors.section_id) $('dish-section-error').textContent = errors.section_id;
         if (errors.diet) $('dish-diet-error').textContent = errors.diet;
+        if (errors.badge) $('dish-badge-error').textContent = errors.badge;
         const banner = $('dish-error');
         banner.textContent = data.error || 'Please check the highlighted fields.';
         banner.classList.remove('is-hidden');
@@ -795,7 +814,7 @@
     const grid = $('ads-grid');
     grid.textContent = '';
     if (!STATE.ads.length) {
-      grid.appendChild(emptyNote('No offers yet. Upload an image to show a scrolling banner on the menu.'));
+      grid.appendChild(emptyNote('No offers yet. Upload a banner to show it on the menu.'));
       return;
     }
     for (const ad of STATE.ads) {
@@ -803,9 +822,18 @@
       node.dataset.id = ad.id;
       const img = node.querySelector('img');
       img.src = ad.image_url;
+      img.alt = ad.heading || 'Offer';
+      node.querySelector('.ad-card__heading').textContent = ad.heading || '';
+      const desc = node.querySelector('.ad-card__desc');
+      if (ad.description) {
+        desc.textContent = ad.description;
+      } else {
+        desc.remove();
+      }
       const toggle = node.querySelector('.ad-card__toggle');
       toggle.checked = ad.is_active;
       toggle.addEventListener('change', () => toggleAd(ad, toggle.checked));
+      node.querySelector('[data-action="edit"]').addEventListener('click', () => openAdDialog(ad));
       node.querySelector('[data-action="delete"]').addEventListener('click', () => deleteAd(ad));
       grid.appendChild(node);
     }
@@ -833,43 +861,257 @@
     }
   }
 
-  function openAdDialog() {
+  /* -------- Banner crop tool (16:9, drag to move, slider to zoom) -------- */
+
+  const CROP_OUT = { width: 1280, height: 720 };
+
+  const crop = {
+    bitmap: null,
+    zoom: 1,
+    ox: 0,
+    oy: 0,
+    pointerId: null,
+    startX: 0,
+    startY: 0,
+    startOx: 0,
+    startOy: 0,
+  };
+
+  function cropFrame() {
+    return $('ad-crop-frame');
+  }
+
+  function cropMetrics() {
+    const rect = cropFrame().getBoundingClientRect();
+    const cover = Math.max(rect.width / crop.bitmap.width, rect.height / crop.bitmap.height);
+    const scale = cover * crop.zoom;
+    return {
+      frameW: rect.width,
+      frameH: rect.height,
+      scale,
+      imgW: crop.bitmap.width * scale,
+      imgH: crop.bitmap.height * scale,
+    };
+  }
+
+  function layoutCrop() {
+    if (!crop.bitmap) return;
+    const m = cropMetrics();
+    crop.ox = Math.min(0, Math.max(m.frameW - m.imgW, crop.ox));
+    crop.oy = Math.min(0, Math.max(m.frameH - m.imgH, crop.oy));
+    const img = $('ad-crop-image');
+    img.style.width = `${m.imgW}px`;
+    img.style.height = `${m.imgH}px`;
+    img.style.left = `${crop.ox}px`;
+    img.style.top = `${crop.oy}px`;
+  }
+
+  function fitCrop() {
+    if (!crop.bitmap) return;
+    const m = cropMetrics();
+    crop.zoom = 1;
+    $('ad-zoom').value = '100';
+    crop.ox = (m.frameW - m.imgW) / 2;
+    crop.oy = (m.frameH - m.imgH) / 2;
+    layoutCrop();
+  }
+
+  function setCropZoom(value) {
+    if (!crop.bitmap) return;
+    const before = cropMetrics();
+    const cx = (before.frameW / 2 - crop.ox) / before.scale;
+    const cy = (before.frameH / 2 - crop.oy) / before.scale;
+    crop.zoom = value;
+    const after = cropMetrics();
+    crop.ox = after.frameW / 2 - cx * after.scale;
+    crop.oy = after.frameH / 2 - cy * after.scale;
+    layoutCrop();
+  }
+
+  async function loadCropFile(file) {
+    try {
+      const bitmap = await createImageBitmap(file);
+      if (crop.bitmap && typeof crop.bitmap.close === 'function') crop.bitmap.close();
+      crop.bitmap = bitmap;
+      const img = $('ad-crop-image');
+      if (img.src && img.src.startsWith('blob:')) URL.revokeObjectURL(img.src);
+      img.src = URL.createObjectURL(file);
+      $('ad-preview').classList.add('is-hidden');
+      $('ad-crop').classList.remove('is-hidden');
+      fitCrop();
+      return true;
+    } catch (_) {
+      resetCrop();
+      return false;
+    }
+  }
+
+  function resetCrop() {
+    if (crop.bitmap && typeof crop.bitmap.close === 'function') crop.bitmap.close();
+    crop.bitmap = null;
+    crop.pointerId = null;
+    crop.zoom = 1;
+    crop.ox = 0;
+    crop.oy = 0;
+    const img = $('ad-crop-image');
+    if (img.src && img.src.startsWith('blob:')) URL.revokeObjectURL(img.src);
+    img.removeAttribute('src');
+    $('ad-zoom').value = '100';
+    $('ad-crop').classList.add('is-hidden');
+  }
+
+  function renderCropBlob() {
+    return new Promise((resolve) => {
+      if (!crop.bitmap) return resolve(null);
+      const m = cropMetrics();
+      const sx = Math.max(0, -crop.ox / m.scale);
+      const sy = Math.max(0, -crop.oy / m.scale);
+      const sw = Math.min(crop.bitmap.width - sx, m.frameW / m.scale);
+      const sh = Math.min(crop.bitmap.height - sy, m.frameH / m.scale);
+      const canvas = document.createElement('canvas');
+      canvas.width = CROP_OUT.width;
+      canvas.height = CROP_OUT.height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return resolve(null);
+      ctx.drawImage(crop.bitmap, sx, sy, sw, sh, 0, 0, CROP_OUT.width, CROP_OUT.height);
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) return resolve(null);
+          resolve(new File([blob], 'banner.webp', { type: 'image/webp' }));
+        },
+        'image/webp',
+        0.85
+      );
+    });
+  }
+
+  function wireCropDrag() {
+    const frame = cropFrame();
+    frame.addEventListener('pointerdown', (event) => {
+      if (!crop.bitmap) return;
+      crop.pointerId = event.pointerId;
+      crop.startX = event.clientX;
+      crop.startY = event.clientY;
+      crop.startOx = crop.ox;
+      crop.startOy = crop.oy;
+      frame.classList.add('is-dragging');
+      frame.setPointerCapture(event.pointerId);
+    });
+    frame.addEventListener('pointermove', (event) => {
+      if (crop.pointerId !== event.pointerId) return;
+      crop.ox = crop.startOx + (event.clientX - crop.startX);
+      crop.oy = crop.startOy + (event.clientY - crop.startY);
+      layoutCrop();
+    });
+    const endDrag = (event) => {
+      if (crop.pointerId !== event.pointerId) return;
+      crop.pointerId = null;
+      frame.classList.remove('is-dragging');
+    };
+    frame.addEventListener('pointerup', endDrag);
+    frame.addEventListener('pointercancel', endDrag);
+  }
+
+  /* --------------------------- Ads dialog --------------------------- */
+
+  let editingAd = null;
+
+  function closeAdDialog() {
+    $('ad-dialog').close();
+    resetCrop();
+  }
+
+  function clearAdErrors() {
+    for (const id of ['ad-image-error', 'ad-heading-error', 'ad-description-error']) {
+      $(id).textContent = '';
+    }
+    const banner = $('ad-error');
+    banner.classList.add('is-hidden');
+    banner.textContent = '';
+  }
+
+  function openAdDialog(ad) {
+    editingAd = ad || null;
     $('ad-form').reset();
-    $('ad-error').classList.add('is-hidden');
-    $('ad-image-error').textContent = '';
+    clearAdErrors();
+    resetCrop();
+    $('ad-id').value = ad ? ad.id : '';
+    $('ad-dialog-title').textContent = ad ? 'Edit offer' : 'Upload offer';
+    $('ad-submit').textContent = ad ? 'Save offer' : 'Upload';
+    $('ad-heading').value = ad ? ad.heading : 'From our counter';
+    $('ad-description').value = ad && ad.description ? ad.description : '';
+    const preview = $('ad-preview');
+    if (ad) {
+      $('ad-preview-img').src = ad.image_url;
+      preview.classList.remove('is-hidden');
+    } else {
+      preview.classList.add('is-hidden');
+    }
     $('ad-dialog').showModal();
   }
 
   async function submitAd(event) {
     event.preventDefault();
+    clearAdErrors();
+
     const file = $('ad-image').files[0];
-    if (!file) {
+    const heading = $('ad-heading').value.trim();
+    const description = $('ad-description').value;
+
+    if (!editingAd && !file) {
       $('ad-image-error').textContent = 'Please choose an image.';
+      return;
+    }
+    if (!heading) {
+      $('ad-heading-error').textContent = 'Heading is required (1–60 characters).';
       return;
     }
 
     const button = $('ad-submit');
     button.disabled = true;
-    button.textContent = 'Uploading…';
+    button.textContent = editingAd ? 'Saving…' : 'Uploading…';
 
     try {
       const form = new FormData();
-      form.append('image', await prepareImage(file, 1920));
-      const { status, data } = await api('/api/admin/ads', { method: 'POST', form });
-      if (status === 201) {
-        $('ad-dialog').close();
-        toast('Offer uploaded.');
-        await loadAds();
-      } else {
-        const banner = $('ad-error');
-        banner.textContent = data.error || 'Could not upload the offer.';
-        banner.classList.remove('is-hidden');
+      form.append('heading', heading);
+      form.append('description', description);
+      if (file) {
+        const banner = await renderCropBlob();
+        if (!banner) {
+          toast('Could not prepare the banner image. Please try another file.', 'error');
+          return;
+        }
+        form.append('image', banner);
       }
+
+      const { status, data } = editingAd
+        ? await api(`/api/admin/ads/${editingAd.id}`, { method: 'PUT', form })
+        : await api('/api/admin/ads', { method: 'POST', form });
+
+      if (status === 201 || status === 200) {
+        $('ad-dialog').close();
+        toast(editingAd ? 'Offer updated.' : 'Offer uploaded.');
+        await loadAds();
+        return;
+      }
+
+      if (status === 400) {
+        const errors = data.errors || {};
+        if (errors.image) $('ad-image-error').textContent = errors.image;
+        if (errors.heading) $('ad-heading-error').textContent = errors.heading;
+        if (errors.description) $('ad-description-error').textContent = errors.description;
+        const banner = $('ad-error');
+        banner.textContent = data.error || 'Please check the highlighted fields.';
+        banner.classList.remove('is-hidden');
+        return;
+      }
+
+      toast(data.error || 'Could not save the offer.', 'error');
     } catch (err) {
       if (!(err instanceof AuthError)) toast('Network error. Please try again.', 'error');
     } finally {
       button.disabled = false;
-      button.textContent = 'Upload';
+      button.textContent = editingAd ? 'Save offer' : 'Upload';
     }
   }
 
@@ -892,6 +1134,19 @@
   }
 
   function wire() {
+    $('login-password-toggle').addEventListener('click', () => {
+      const input = $('login-password');
+      const button = $('login-password-toggle');
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      button.setAttribute('aria-pressed', String(show));
+      button.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+      button.title = button.getAttribute('aria-label');
+      button.querySelector('.password-toggle__show').classList.toggle('is-hidden', show);
+      button.querySelector('.password-toggle__hide').classList.toggle('is-hidden', !show);
+      input.focus();
+    });
+
     $('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const password = $('login-password').value;
@@ -938,7 +1193,7 @@
     $('refresh-reviews').addEventListener('click', loadReviews);
     $('new-section').addEventListener('click', addSection);
     $('new-dish').addEventListener('click', () => openDishDialog(null));
-    $('new-ad').addEventListener('click', openAdDialog);
+    $('new-ad').addEventListener('click', () => openAdDialog(null));
 
     $('dish-dialog-close').addEventListener('click', () => $('dish-dialog').close());
     $('dish-cancel').addEventListener('click', () => $('dish-dialog').close());
@@ -952,9 +1207,28 @@
       }
     });
 
-    $('ad-dialog-close').addEventListener('click', () => $('ad-dialog').close());
-    $('ad-cancel').addEventListener('click', () => $('ad-dialog').close());
+    $('ad-dialog-close').addEventListener('click', closeAdDialog);
+    $('ad-cancel').addEventListener('click', closeAdDialog);
     $('ad-form').addEventListener('submit', submitAd);
+    $('ad-image').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) {
+        resetCrop();
+        if (editingAd) $('ad-preview').classList.remove('is-hidden');
+        return;
+      }
+      $('ad-image-error').textContent = '';
+      const ok = await loadCropFile(file);
+      if (!ok) {
+        $('ad-image-error').textContent = 'Could not read that image. Please choose another file.';
+      }
+    });
+    $('ad-zoom').addEventListener('input', (e) => setCropZoom(Number(e.target.value) / 100));
+    $('ad-crop-reset').addEventListener('click', fitCrop);
+    wireCropDrag();
+    window.addEventListener('resize', () => {
+      if (crop.bitmap) setCropZoom(crop.zoom);
+    });
   }
 
   wire();

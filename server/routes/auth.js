@@ -4,7 +4,7 @@ const router = require('express').Router();
 const auth = require('../auth');
 const { rateLimit, resetRateLimit } = require('../ratelimit');
 
-const USERNAME = "Shaffi's Backery";
+const USERNAME = "Shaffi's Bakery";
 
 router.post(
   '/login',

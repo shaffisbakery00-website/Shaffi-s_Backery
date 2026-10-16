@@ -69,6 +69,34 @@
     return b;
   }
 
+  const BADGE_META = {
+    popular: {
+      label: 'Popular',
+      cls: 'badge--popular',
+      icon: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3.6l2.5 5.14 5.66.82-4.08 3.98.96 5.64L12 16.53l-5.04 2.65.96-5.64L3.84 9.56l5.66-.82L12 3.6Z"/></svg>',
+    },
+    best_choice: {
+      label: 'Best Choice',
+      cls: 'badge--best',
+      icon: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-1.2 13.6-3.3-3.3 1.4-1.4 1.9 1.9 4.5-4.5 1.4 1.4-5.9 5.9Z"/></svg>',
+    },
+    chefs_choice: {
+      label: "Chef's Choice",
+      cls: 'badge--chefs',
+      icon: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 4a4 4 0 0 0-3.9 3.1A3.5 3.5 0 0 0 6 13.6V15.5h12v-1.9a3.5 3.5 0 0 0-2.1-6.5A4 4 0 0 0 12 4Z"/><path d="M7 17h10v2.5a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V17Z"/></svg>',
+    },
+  };
+
+  function dishBadge(badge) {
+    const meta = BADGE_META[badge];
+    if (!meta) return null;
+    const b = document.createElement('span');
+    b.className = `badge ${meta.cls}`;
+    b.innerHTML = meta.icon;
+    b.appendChild(document.createTextNode(` ${meta.label}`));
+    return b;
+  }
+
   function buildDish(dish) {
     const node = document.getElementById('dish-template').content.firstElementChild.cloneNode(true);
     if (!dish.is_available) node.classList.add('dish--unavailable');
@@ -108,13 +136,8 @@
       b.textContent = 'Sold out';
       badges.appendChild(b);
     }
-    if (dish.is_popular) {
-      const b = document.createElement('span');
-      b.className = 'badge badge--popular';
-      b.innerHTML =
-        '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3.6l2.5 5.14 5.66.82-4.08 3.98.96 5.64L12 16.53l-5.04 2.65.96-5.64L3.84 9.56l5.66-.82L12 3.6Z"/></svg> Popular';
-      node.appendChild(b);
-    }
+    const badge = dishBadge(dish.badge);
+    if (badge) node.appendChild(badge);
 
     return node;
   }
@@ -213,7 +236,14 @@
     const node = document.getElementById('offer-template').content.firstElementChild.cloneNode(true);
     const img = node.querySelector('img');
     img.src = ad.image_url;
-    img.alt = 'Offer';
+    img.alt = ad.heading || 'Offer';
+    node.querySelector('.offer__heading').textContent = ad.heading || '';
+    const desc = node.querySelector('.offer__desc');
+    if (ad.description) {
+      desc.textContent = ad.description;
+    } else {
+      desc.remove();
+    }
     return node;
   }
 

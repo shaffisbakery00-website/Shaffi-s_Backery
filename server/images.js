@@ -68,11 +68,10 @@ const uploadMiddleware = multer({
   limits: { fileSize: MAX_BYTES, files: 1 },
 }).single('image');
 
-/** Normalise the multipart result into { buffer, remove }. */
+/** Normalise the multipart result into { buffer }. */
 function fromRequest(req) {
   return {
     buffer: req.file ? req.file.buffer : null,
-    remove: String(req.body && req.body.remove_image) === '1',
   };
 }
 

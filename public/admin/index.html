@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#174C38" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>Shaffi's Backery — Admin</title>
+    <title>Shaffi's Bakery — Admin</title>
     <link rel="icon" href="/images/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -29,7 +29,7 @@
           />
           <path d="M9.2 17.6h13.6" stroke="#174C38" stroke-width="1.6" stroke-linecap="round" />
         </svg>
-        <h1 class="login__title">Shaffi's Backery</h1>
+        <h1 class="login__title">Shaffi's Bakery</h1>
         <p class="login__subtitle">Admin access</p>
 
         <p class="form-error is-hidden" id="login-error" role="alert"></p>
@@ -37,7 +37,26 @@
         <form id="login-form" novalidate>
           <div class="field" style="text-align: left">
             <label for="login-password">Password</label>
-            <input id="login-password" type="password" autocomplete="current-password" required />
+            <div class="password-field">
+              <input id="login-password" type="password" autocomplete="current-password" required />
+              <button
+                class="password-toggle"
+                type="button"
+                id="login-password-toggle"
+                aria-label="Show password"
+                aria-pressed="false"
+                title="Show password"
+              >
+                <svg class="password-toggle__show" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+                  <circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="1.6" />
+                </svg>
+                <svg class="password-toggle__hide is-hidden" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M2.5 12S6 5.5 12 5.5c1.7 0 3.2.45 4.5 1.1M21.5 12S18 18.5 12 18.5c-1.7 0-3.2-.45-4.5-1.1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M4 20 20 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                </svg>
+              </button>
+            </div>
           </div>
           <button class="btn btn--primary" type="submit" id="login-submit" style="width: 100%">
             Sign in
@@ -61,7 +80,7 @@
               <path d="M9.2 17.6h13.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
             </svg>
             <span class="app-brand__text">
-              <span class="app-brand__name">Shaffi's Backery</span>
+              <span class="app-brand__name">Shaffi's Bakery</span>
               <span class="app-brand__tag">Menu Admin</span>
             </span>
           </div>
@@ -192,14 +211,26 @@
               <span class="field__error" id="dish-section-error"></span>
             </div>
           </div>
-          <div class="field">
-            <label for="dish-diet">Type</label>
-            <select id="dish-diet">
-              <option value="veg">Veg</option>
-              <option value="non_veg">Non-veg</option>
-              <option value="none">None</option>
-            </select>
-            <span class="field__error" id="dish-diet-error"></span>
+          <div class="field-row field-row--2">
+            <div class="field">
+              <label for="dish-diet">Type</label>
+              <select id="dish-diet">
+                <option value="veg">Veg</option>
+                <option value="non_veg">Non-veg</option>
+                <option value="none">None</option>
+              </select>
+              <span class="field__error" id="dish-diet-error"></span>
+            </div>
+            <div class="field">
+              <label for="dish-badge">Badge</label>
+              <select id="dish-badge">
+                <option value="none">None</option>
+                <option value="popular">Popular</option>
+                <option value="best_choice">Best Choice</option>
+                <option value="chefs_choice">Chef's Choice</option>
+              </select>
+              <span class="field__error" id="dish-badge-error"></span>
+            </div>
           </div>
           <div class="field">
             <label for="dish-image">Photo</label>
@@ -209,19 +240,11 @@
               <span class="image-preview__info" id="dish-image-info">No photo yet. JPEG, PNG, WebP or AVIF up to 3 MB.</span>
             </div>
             <span class="field__error" id="dish-image-error"></span>
-            <label class="switch" style="margin-top: var(--s-2)">
-              <input type="checkbox" id="dish-remove-image" />
-              Remove current photo
-            </label>
           </div>
-          <div class="field-row field-row--2">
+          <div class="switch-row">
             <label class="switch">
               <input type="checkbox" id="dish-available" checked />
               Available
-            </label>
-            <label class="switch">
-              <input type="checkbox" id="dish-popular" />
-              Popular
             </label>
           </div>
 
@@ -246,11 +269,41 @@
         </div>
         <p class="form-error is-hidden" id="ad-error" role="alert"></p>
         <form id="ad-form" novalidate>
+          <input type="hidden" id="ad-id" />
           <div class="field">
-            <label for="ad-image">Image</label>
-            <input id="ad-image" type="file" accept="image/png,image/jpeg,image/webp,image/avif" required />
+            <label for="ad-image">Banner image (16:9)</label>
+            <input id="ad-image" type="file" accept="image/png,image/jpeg,image/webp,image/avif" />
             <span class="field__error" id="ad-image-error"></span>
           </div>
+
+          <div class="ad-preview is-hidden" id="ad-preview">
+            <img id="ad-preview-img" alt="Current banner" />
+            <span class="ad-preview__note">Current banner — choose a new file to crop and replace it.</span>
+          </div>
+
+          <div class="crop is-hidden" id="ad-crop">
+            <div class="crop__frame" id="ad-crop-frame">
+              <img id="ad-crop-image" alt="" draggable="false" />
+            </div>
+            <div class="crop__controls">
+              <label for="ad-zoom" class="crop__label">Zoom</label>
+              <input type="range" id="ad-zoom" min="100" max="400" step="1" value="100" />
+              <button class="btn btn--ghost btn--sm" type="button" id="ad-crop-reset">Reset</button>
+            </div>
+            <p class="crop__hint">Drag the image to move it. Use the slider to zoom in and out.</p>
+          </div>
+
+          <div class="field">
+            <label for="ad-heading">Heading</label>
+            <input id="ad-heading" type="text" maxlength="60" value="From our counter" />
+            <span class="field__error" id="ad-heading-error"></span>
+          </div>
+          <div class="field">
+            <label for="ad-description">Description <span class="field__optional">(optional)</span></label>
+            <textarea id="ad-description" maxlength="160" rows="2"></textarea>
+            <span class="field__error" id="ad-description-error"></span>
+          </div>
+
           <div class="dialog__actions">
             <button class="btn btn--ghost" type="button" id="ad-cancel">Cancel</button>
             <button class="btn btn--primary" type="submit" id="ad-submit">Upload</button>
@@ -363,13 +416,20 @@
       <div class="card ad-card">
         <img alt="Offer" loading="lazy" />
         <div class="ad-card__body">
-          <label class="switch">
-            <input type="checkbox" class="ad-card__toggle" />
-            Active
-          </label>
-          <button class="icon-btn" type="button" data-action="delete" aria-label="Delete offer">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
-          </button>
+          <div class="ad-card__meta">
+            <p class="ad-card__heading"></p>
+            <p class="ad-card__desc"></p>
+          </div>
+          <div class="ad-card__actions">
+            <label class="switch">
+              <input type="checkbox" class="ad-card__toggle" />
+              Active
+            </label>
+            <button class="btn btn--ghost btn--sm" type="button" data-action="edit">Edit</button>
+            <button class="icon-btn" type="button" data-action="delete" aria-label="Delete offer">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            </button>
+          </div>
         </div>
       </div>
     </template>

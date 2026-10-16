@@ -14,7 +14,7 @@ router.get('/stats', async (req, res) => {
     supabase
       .from('dishes')
       .select(
-        'id, section_id, name, description, price, diet, image_path, is_popular, is_available, created_at, updated_at, section:sections(name)'
+        'id, section_id, name, description, price, diet, badge, image_path, is_available, created_at, updated_at, section:sections(name)'
       )
       .order('updated_at', { ascending: false })
       .limit(5),
@@ -30,6 +30,8 @@ router.get('/stats', async (req, res) => {
     dishes: Number(stats.dishes || 0),
     available: Number(stats.available || 0),
     popular: Number(stats.popular || 0),
+    best_choice: Number(stats.best_choice || 0),
+    chefs_choice: Number(stats.chefs_choice || 0),
     recent: recentResult.data.map((row) => {
       const dish = serializeDish(row);
       dish.section_name = row.section ? row.section.name : null;
@@ -68,7 +70,7 @@ router.delete('/reviews/:id', async (req, res) => {
 router.get('/ads', async (req, res) => {
   const { data, error } = await supabase
     .from('ads')
-    .select('id, image_path, is_active, created_at')
+    .select('id, image_path, heading, description, is_active, created_at')
     .order('created_at', { ascending: false });
   if (error) throw httpError(502, 'Could not load ads.');
   res.json(data.map(serializeAd));
@@ -76,6 +78,11 @@ router.get('/ads', async (req, res) => {
 
 // POST /api/admin/ads — upload a new ad image (multipart, image required).
 router.post('/ads', images.uploadMiddleware, async (req, res) => {
+  const parsed = validate.adInput(req.body || {});
+  if (!parsed.ok) {
+    return res.status(400).json({ error: 'Please fix the highlighted fields.', errors: parsed.errors });
+  }
+
   const image = images.fromRequest(req);
   if (!image.buffer) {
     return res.status(400).json({ error: 'Please choose an image to upload.' });
@@ -84,8 +91,8 @@ router.post('/ads', images.uploadMiddleware, async (req, res) => {
 
   const { data, error } = await supabase
     .from('ads')
-    .insert({ image_path, is_active: true })
-    .select('id, image_path, is_active, created_at')
+    .insert({ image_path, is_active: true, ...parsed.value })
+    .select('id, image_path, heading, description, is_active, created_at')
     .single();
   if (error) {
     await images.remove(image_path);
@@ -93,6 +100,43 @@ router.post('/ads', images.uploadMiddleware, async (req, res) => {
   }
 
   res.status(201).json({ ad: serializeAd(data) });
+});
+
+// PUT /api/admin/ads/:id — update heading/description and optionally replace the image.
+router.put('/ads/:id', images.parseIfMultipart, async (req, res) => {
+  if (!validate.isUuid(req.params.id)) throw httpError(404, 'Ad not found.');
+
+  const parsed = validate.adInput(req.body || {}, { partial: true });
+  if (!parsed.ok) {
+    return res.status(400).json({ error: 'Please fix the highlighted fields.', errors: parsed.errors });
+  }
+
+  const { data: existing, error: fetchError } = await supabase
+    .from('ads')
+    .select('id, image_path')
+    .eq('id', req.params.id)
+    .maybeSingle();
+  if (fetchError) throw httpError(502, 'Could not save the ad.');
+  if (!existing) throw httpError(404, 'Ad not found.');
+
+  const update = { ...parsed.value };
+  const image = images.fromRequest(req);
+  let removeOld = null;
+  if (image.buffer) {
+    update.image_path = await images.upload(image.buffer, 'ads');
+    removeOld = existing.image_path;
+  }
+
+  const { data, error } = await supabase
+    .from('ads')
+    .update(update)
+    .eq('id', req.params.id)
+    .select('id, image_path, heading, description, is_active, created_at')
+    .single();
+  if (error) throw httpError(502, 'Could not save the ad.');
+
+  if (removeOld) await images.remove(removeOld);
+  res.json({ ad: serializeAd(data) });
 });
 
 // PATCH /api/admin/ads/:id — activate/deactivate.
@@ -108,7 +152,7 @@ router.patch('/ads/:id', async (req, res) => {
     .from('ads')
     .update({ is_active: isActive })
     .eq('id', req.params.id)
-    .select('id, image_path, is_active, created_at')
+    .select('id, image_path, heading, description, is_active, created_at')
     .maybeSingle();
   if (error) throw httpError(502, 'Could not update the ad.');
   if (!data) throw httpError(404, 'Ad not found.');

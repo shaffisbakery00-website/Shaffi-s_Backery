@@ -365,19 +365,34 @@ html {
   height: 12px;
 }
 
-.badge--popular {
+.badge--popular,
+.badge--best,
+.badge--chefs {
   position: absolute;
   top: var(--s-2);
   right: var(--s-2);
   z-index: 2;
   padding: 3px 10px;
-  background: linear-gradient(135deg, var(--gold), var(--gold-star));
-  color: var(--green-deep);
   letter-spacing: 0.04em;
   box-shadow: 0 2px 6px rgba(41, 45, 41, 0.22);
 }
 
+.badge--popular {
+  background: linear-gradient(135deg, var(--gold), var(--gold-star));
+  color: var(--green-deep);
+}
+
 .badge--popular svg {
+  color: var(--green-deep);
+}
+
+.badge--best {
+  background: linear-gradient(135deg, var(--green), var(--green-deep));
+  color: var(--canvas);
+}
+
+.badge--chefs {
+  background: linear-gradient(135deg, var(--gold-soft), var(--gold));
   color: var(--green-deep);
 }
 
@@ -442,15 +457,6 @@ html {
   background: linear-gradient(180deg, var(--canvas), var(--sage));
 }
 
-.offers__label {
-  margin: 0 0 var(--s-3);
-  text-align: center;
-  font-size: 0.75rem;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
 .hero .offers {
   padding: var(--s-4) 0 0;
   border: none;
@@ -481,7 +487,6 @@ html {
 .offer {
   flex: 0 0 auto;
   width: clamp(220px, 60vw, 360px);
-  aspect-ratio: 16 / 9;
   border-radius: var(--r-md);
   overflow: hidden;
   border: 1px solid var(--line);
@@ -489,10 +494,36 @@ html {
   background: #fff;
 }
 
-.offer img {
+.offer__media {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--sage);
+}
+
+.offer__media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.offer__caption {
+  padding: var(--s-3) var(--s-4) var(--s-4);
+  text-align: center;
+}
+
+.offer__heading {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--green);
+}
+
+.offer__desc {
+  margin: var(--s-1) 0 0;
+  font-size: 0.875rem;
+  color: var(--muted);
 }
 
 /* ---------- Offers slider (one banner at a time, auto-advancing) ---------- */
@@ -510,34 +541,27 @@ html {
   border: 1px solid var(--line);
   box-shadow: var(--shadow-1);
   background: var(--sage);
-  aspect-ratio: 2 / 1;
   touch-action: pan-y;
 }
 
 .slider__track {
   display: flex;
-  height: 100%;
   transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .slider__track .offer {
-  position: relative;
   flex: 0 0 100%;
   width: 100%;
-  height: 100%;
   aspect-ratio: auto;
   border: none;
   border-radius: 0;
   box-shadow: none;
   background: transparent;
+  overflow: visible;
 }
 
-.slider__track .offer img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+.slider__track .offer__caption {
+  padding-bottom: var(--s-5);
 }
 
 .slider__dots {

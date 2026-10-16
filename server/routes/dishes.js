@@ -8,7 +8,7 @@ const { httpError } = require('./../httpError');
 const { serializeDish } = require('../util');
 
 const SELECT =
-  'id, section_id, name, description, price, diet, image_path, is_popular, is_available, created_at, updated_at, section:sections(name)';
+  'id, section_id, name, description, price, diet, badge, image_path, is_available, created_at, updated_at, section:sections(name)';
 
 function withSectionName(row) {
   const dish = serializeDish(row);
@@ -50,9 +50,7 @@ router.post('/', images.parseIfMultipart, async (req, res) => {
 
   const insert = { ...parsed.value };
   const isAvailable = validate.toBool(req.body && req.body.is_available);
-  const isPopular = validate.toBool(req.body && req.body.is_popular);
   if (isAvailable !== undefined) insert.is_available = isAvailable;
-  if (isPopular !== undefined) insert.is_popular = isPopular;
 
   const image = images.fromRequest(req);
   if (image.buffer) insert.image_path = await images.upload(image.buffer, 'dishes');
@@ -84,17 +82,12 @@ router.put('/:id', images.parseIfMultipart, async (req, res) => {
 
   const update = { ...parsed.value, updated_at: new Date().toISOString() };
   const isAvailable = validate.toBool(req.body && req.body.is_available);
-  const isPopular = validate.toBool(req.body && req.body.is_popular);
   if (isAvailable !== undefined) update.is_available = isAvailable;
-  if (isPopular !== undefined) update.is_popular = isPopular;
 
   const image = images.fromRequest(req);
   let removeOld = null;
   if (image.buffer) {
     update.image_path = await images.upload(image.buffer, 'dishes');
-    removeOld = existing.image_path;
-  } else if (image.remove) {
-    update.image_path = null;
     removeOld = existing.image_path;
   }
 
@@ -110,7 +103,7 @@ router.put('/:id', images.parseIfMultipart, async (req, res) => {
   res.json({ dish: withSectionName(data) });
 });
 
-// PATCH /api/admin/dishes/:id — quick toggles (is_available / is_popular).
+// PATCH /api/admin/dishes/:id — quick toggles (is_available / badge).
 router.patch('/:id', async (req, res) => {
   if (!validate.isUuid(req.params.id)) throw httpError(404, 'Dish not found.');
 

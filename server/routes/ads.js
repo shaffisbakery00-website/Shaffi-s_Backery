@@ -8,7 +8,7 @@ const { serializeAd } = require('../util');
 router.get('/', async (req, res) => {
   const { data, error } = await supabase
     .from('ads')
-    .select('id, image_path, is_active, created_at')
+    .select('id, image_path, heading, description, is_active, created_at')
     .eq('is_active', true)
     .order('created_at', { ascending: false });
   if (error) return res.status(503).json({ error: 'Offers are temporarily unavailable.' });

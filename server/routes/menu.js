@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
     supabase
       .from('dishes')
       .select(
-        'id, section_id, name, description, price, diet, image_path, is_popular, is_available, created_at, updated_at'
+        'id, section_id, name, description, price, diet, badge, image_path, is_available, created_at, updated_at'
       )
       .order('created_at', { ascending: true }),
   ]);

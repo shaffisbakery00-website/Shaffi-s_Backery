@@ -60,6 +60,30 @@ test('diet defaults to veg and accepts non_veg, rejecting anything else', async 
   assert.ok(invalid.data.errors.diet);
 });
 
+test('badge defaults to none and accepts popular, best_choice and chefs_choice', async () => {
+  const section = await newSection();
+
+  const byDefault = await createDish({ name: 'No Badge', price: 5, section_id: section.id });
+  assert.equal(byDefault.status, 201);
+  assert.equal(byDefault.data.dish.badge, 'none');
+
+  const popular = await createDish({ name: 'Popular One', price: 5, section_id: section.id, badge: 'popular' });
+  assert.equal(popular.status, 201);
+  assert.equal(popular.data.dish.badge, 'popular');
+
+  const best = await createDish({ name: 'Best One', price: 5, section_id: section.id, badge: 'best_choice' });
+  assert.equal(best.status, 201);
+  assert.equal(best.data.dish.badge, 'best_choice');
+
+  const chefs = await createDish({ name: 'Chefs One', price: 5, section_id: section.id, badge: 'chefs_choice' });
+  assert.equal(chefs.status, 201);
+  assert.equal(chefs.data.dish.badge, 'chefs_choice');
+
+  const invalid = await createDish({ name: 'Weird Badge', price: 5, section_id: section.id, badge: 'gold' });
+  assert.equal(invalid.status, 400);
+  assert.ok(invalid.data.errors.badge);
+});
+
 test('a dish can be created and appears in the admin list', async () => {
   const section = await newSection();
   const res = await createDish({ name: 'Belgian Chocolate Cake', description: 'Rich and moist', price: 12.5, section_id: section.id });
@@ -143,7 +167,7 @@ test('an unsupported file type is rejected by the server-side sniffer', async ()
   assert.equal(res.status, 400);
 });
 
-test('toggle endpoints flip availability and popularity', async () => {
+test('toggle endpoints flip availability and the badge', async () => {
   const section = await newSection();
   const created = await createDish({ name: 'Toggle Me', price: 3, section_id: section.id });
   const id = created.data.dish.id;
@@ -152,9 +176,14 @@ test('toggle endpoints flip availability and popularity', async () => {
   assert.equal(off.status, 200);
   assert.equal(off.data.dish.is_available, false);
 
-  const popular = await request(base, `/api/admin/dishes/${id}`, { method: 'PATCH', body: { is_popular: true }, cookie });
-  assert.equal(popular.data.dish.is_popular, true);
-  assert.equal(popular.data.dish.is_available, false);
+  const badge = await request(base, `/api/admin/dishes/${id}`, { method: 'PATCH', body: { badge: 'best_choice' }, cookie });
+  assert.equal(badge.status, 200);
+  assert.equal(badge.data.dish.badge, 'best_choice');
+  assert.equal(badge.data.dish.is_available, false);
+
+  const invalid = await request(base, `/api/admin/dishes/${id}`, { method: 'PATCH', body: { badge: 'super_star' }, cookie });
+  assert.equal(invalid.status, 400);
+  assert.ok(invalid.data.errors.badge);
 
   const empty = await request(base, `/api/admin/dishes/${id}`, { method: 'PATCH', body: {}, cookie });
   assert.equal(empty.status, 400);

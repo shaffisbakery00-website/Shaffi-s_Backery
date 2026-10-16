@@ -1,8 +1,8 @@
 {
-  "name": "sharrifs-backery",
+  "name": "shaffis-bakery",
   "version": "1.0.0",
   "private": true,
-  "description": "Shaffi's Backery — digital menu for guests and a private admin dashboard.",
+  "description": "Shaffi's Bakery — digital menu for guests and a private admin dashboard.",
   "type": "commonjs",
   "license": "UNLICENSED",
   "engines": {

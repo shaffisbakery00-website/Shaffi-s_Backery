@@ -2,6 +2,8 @@
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+const BADGES = ['none', 'popular', 'best_choice', 'chefs_choice'];
+
 const isUuid = (v) => typeof v === 'string' && UUID_RE.test(v);
 
 function trimmed(value) {
@@ -51,6 +53,14 @@ function dishInput(body = {}) {
     }
   }
 
+  let badge = 'none';
+  if (body.badge !== undefined && body.badge !== null && body.badge !== '') {
+    badge = trimmed(body.badge);
+    if (!BADGES.includes(badge)) {
+      errors.badge = 'Choose none, popular, best choice or chef\u2019s choice.';
+    }
+  }
+
   if (Object.keys(errors).length) return { ok: false, errors };
   return {
     ok: true,
@@ -60,6 +70,7 @@ function dishInput(body = {}) {
       price: Math.round(price * 100) / 100,
       section_id,
       diet,
+      badge,
     },
   };
 }
@@ -68,7 +79,7 @@ function toggleInput(body = {}) {
   const errors = {};
   const value = {};
   for (const key of Object.keys(body)) {
-    if (key !== 'is_available' && key !== 'is_popular') {
+    if (key !== 'is_available' && key !== 'badge') {
       errors[key] = 'Unknown field.';
     }
   }
@@ -77,14 +88,44 @@ function toggleInput(body = {}) {
     if (v === undefined) errors.is_available = 'Must be true or false.';
     else value.is_available = v;
   }
-  if ('is_popular' in body) {
-    const v = toBool(body.is_popular);
-    if (v === undefined) errors.is_popular = 'Must be true or false.';
-    else value.is_popular = v;
+  if ('badge' in body) {
+    const v = trimmed(body.badge);
+    if (!BADGES.includes(v)) errors.badge = 'Choose none, popular, best choice or chef\u2019s choice.';
+    else value.badge = v;
   }
   if (!Object.keys(value).length && !Object.keys(errors).length) {
-    errors.body = 'Provide is_available or is_popular.';
+    errors.body = 'Provide is_available or badge.';
   }
+  if (Object.keys(errors).length) return { ok: false, errors };
+  return { ok: true, value };
+}
+
+function adInput(body = {}, { partial = false } = {}) {
+  const errors = {};
+  const value = {};
+
+  if (Object.prototype.hasOwnProperty.call(body, 'heading')) {
+    const heading = trimmed(body.heading);
+    if (heading === undefined || heading === null || heading === '') {
+      if (partial) errors.heading = 'Heading is required (1\u201360 characters).';
+    } else if (heading.length > 60) {
+      errors.heading = 'Heading must be 60 characters or fewer.';
+    } else {
+      value.heading = heading;
+    }
+  }
+
+  if (Object.prototype.hasOwnProperty.call(body, 'description')) {
+    const description = trimmed(body.description);
+    if (description === undefined || description === null || description === '') {
+      value.description = null;
+    } else if (description.length > 160) {
+      errors.description = 'Description must be 160 characters or fewer.';
+    } else {
+      value.description = description;
+    }
+  }
+
   if (Object.keys(errors).length) return { ok: false, errors };
   return { ok: true, value };
 }
@@ -147,6 +188,7 @@ module.exports = {
   toBool,
   dishInput,
   toggleInput,
+  adInput,
   sectionInput,
   reviewInput,
   directionInput,

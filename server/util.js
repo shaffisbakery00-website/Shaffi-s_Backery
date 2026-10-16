@@ -11,8 +11,8 @@ function serializeDish(row) {
     description: row.description,
     price: Number(row.price),
     diet: row.diet,
+    badge: row.badge,
     image_url: images.publicUrl(row.image_path),
-    is_popular: row.is_popular,
     is_available: row.is_available,
     created_at: row.created_at,
     updated_at: row.updated_at,
@@ -23,6 +23,8 @@ function serializeAd(row) {
   return {
     id: row.id,
     image_url: images.publicUrl(row.image_path),
+    heading: row.heading,
+    description: row.description,
     is_active: row.is_active,
     created_at: row.created_at,
   };

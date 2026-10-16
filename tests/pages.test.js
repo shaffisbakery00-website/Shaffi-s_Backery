@@ -22,7 +22,7 @@ test('the customer page is served with the expected CSP and no inline scripts', 
   assert.match(csp, /script-src 'self'/);
   assert.match(csp, /default-src 'self'/);
 
-  assert.match(res.data, /Shaffi's Backery/);
+  assert.match(res.data, /Shaffi's Bakery/);
   assert.match(res.data, /src="\/js\/customer\.js"/);
 
   const scripts = res.data.match(/<script\b[^>]*>/gi) || [];

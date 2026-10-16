@@ -40,11 +40,11 @@ test('login succeeds with the configured password and sets a hardened cookie', a
 
 test('session endpoint reflects authentication state', async () => {
   const anon = await request(base, '/api/auth/session');
-  assert.deepEqual(anon.data, { authenticated: false, username: "Shaffi's Backery" });
+  assert.deepEqual(anon.data, { authenticated: false, username: "Shaffi's Bakery" });
 
   const { cookie } = await login(base);
   const authed = await request(base, '/api/auth/session', { cookie });
-  assert.deepEqual(authed.data, { authenticated: true, username: "Shaffi's Backery" });
+  assert.deepEqual(authed.data, { authenticated: true, username: "Shaffi's Bakery" });
 });
 
 test('a forged session cookie is rejected', async () => {
@@ -68,7 +68,7 @@ test('every admin mutation endpoint requires a session', async () => {
   const attempts = [
     ['POST', '/api/admin/dishes', { name: 'x', price: 1, section_id: 'a' }],
     ['PUT', '/api/admin/dishes/00000000-0000-0000-0000-000000000000', { name: 'x' }],
-    ['PATCH', '/api/admin/dishes/00000000-0000-0000-0000-000000000000', { is_popular: true }],
+    ['PATCH', '/api/admin/dishes/00000000-0000-0000-0000-000000000000', { badge: 'popular' }],
     ['DELETE', '/api/admin/dishes/00000000-0000-0000-0000-000000000000'],
     ['POST', '/api/admin/sections', { name: 'Hacked' }],
     ['PUT', '/api/admin/sections/00000000-0000-0000-0000-000000000000', { name: 'Hacked' }],

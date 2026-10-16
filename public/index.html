@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#174C38" />
-    <meta name="description" content="Shaffi's Backery — browse our freshly baked cakes, breads and pastries." />
-    <title>Shaffi's Backery — Menu</title>
+    <meta name="description" content="Shaffi's Bakery — browse our freshly baked cakes, breads and pastries." />
+    <title>Shaffi's Bakery — Menu</title>
     <link rel="icon" href="/images/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -29,18 +29,17 @@
         <h1 class="device-gate__title">Please open on your phone</h1>
         <p class="device-gate__text">
           Our menu is made for phones and tablets. For the best experience, open
-          <strong>Shaffi's Backery</strong> on your mobile or tablet device.
+          <strong>Shaffi's Bakery</strong> on your mobile or tablet device.
         </p>
       </div>
     </div>
 
     <header class="hero">
       <p class="hero__eyebrow">Our Menu</p>
-      <h1 class="hero__title">Shaffi's Backery</h1>
+      <h1 class="hero__title">Shaffi's Bakery</h1>
       <p class="hero__tagline">Handcrafted bakes, made with care and served with a smile.</p>
 
       <section class="offers is-hidden" id="offers" aria-label="Offers and announcements">
-        <p class="offers__label">From our counter</p>
         <div class="slider" id="offers-slider">
           <div class="slider__viewport">
             <div class="slider__track" id="offers-track" aria-live="polite"></div>
@@ -102,7 +101,7 @@
     </main>
 
     <footer class="footer">
-      <p class="footer__brand">Shaffi's Backery</p>
+      <p class="footer__brand">Shaffi's Bakery</p>
       <p class="footer__note">Thank you for visiting. We hope you enjoy every bite.</p>
     </footer>
 
@@ -184,7 +183,13 @@
 
     <template id="offer-template">
       <div class="offer">
-        <img alt="" loading="lazy" decoding="async" />
+        <div class="offer__media">
+          <img alt="" loading="lazy" decoding="async" />
+        </div>
+        <div class="offer__caption">
+          <p class="offer__heading"></p>
+          <p class="offer__desc"></p>
+        </div>
       </div>
     </template>
 
