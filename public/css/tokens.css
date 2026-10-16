@@ -1,0 +1,120 @@
+/* Brand tokens for Shaffi's Backery.
+   One source of truth for colour, type, spacing and shape. */
+
+:root {
+  /* Colour */
+  --canvas: #fffefa;
+  --green: #174c38;
+  --green-deep: #0f3527;
+  --sage: #e8f0e9;
+  --sage-deep: #d5e3d8;
+  --gold: #c6a15b;
+  --gold-soft: #e9d9b4;
+  --gold-star: #e8b021;
+  --ink: #292d29;
+  --muted: #777b75;
+  --line: rgba(41, 45, 41, 0.12);
+  --line-strong: rgba(41, 45, 41, 0.2);
+  --danger: #8c2f1e;
+  --danger-bg: #f7e7e3;
+  --veg: #1f8a4c;
+  --veg-bg: #e7f3ec;
+  --nonveg: #9c2b1b;
+  --nonveg-bg: #f7e7e3;
+
+  /* Type */
+  --serif: "Cormorant Garamond", "Times New Roman", serif;
+  --sans: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Space */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2rem;
+  --s-7: 3rem;
+  --s-8: 4rem;
+
+  /* Shape & elevation */
+  --r-sm: 6px;
+  --r-md: 12px;
+  --r-lg: 20px;
+  --r-pill: 999px;
+  --shadow-1: 0 1px 2px rgba(41, 45, 41, 0.06), 0 6px 20px rgba(23, 76, 56, 0.06);
+  --shadow-2: 0 12px 40px rgba(23, 76, 56, 0.16);
+
+  /* Motion */
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --speed: 180ms;
+
+  /* Layout */
+  --page-max: 72rem;
+  --gutter: clamp(1rem, 4vw, 2rem);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 3px solid var(--green);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--green);
+  color: var(--canvas);
+  padding: var(--s-2) var(--s-4);
+  z-index: 100;
+}
+
+.skip-link:focus {
+  left: var(--s-4);
+  top: var(--s-2);
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

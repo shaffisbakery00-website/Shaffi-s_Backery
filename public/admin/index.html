@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#174C38" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Shaffi's Backery — Admin</title>
+    <link rel="icon" href="/images/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap"
+    />
+    <link rel="stylesheet" href="/css/tokens.css" />
+    <link rel="stylesheet" href="/css/admin.css" />
+  </head>
+  <body class="admin-body">
+    <!-- ---------- Login ---------- -->
+    <section class="login" id="login-view">
+      <div class="login__card">
+        <svg class="login__mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <path d="M16 6c1.4 1.9 1.4 4 0 5.9C14.6 10 14.6 7.9 16 6Z" fill="currentColor" />
+          <path
+            d="M16 12.2c3.9 0 7 3.1 7 7 0 5-4.9 9.6-7 9.6s-7-4.6-7-9.6c0-3.9 3.1-7 7-7Z"
+            stroke="#174C38"
+            stroke-width="1.6"
+          />
+          <path d="M9.2 17.6h13.6" stroke="#174C38" stroke-width="1.6" stroke-linecap="round" />
+        </svg>
+        <h1 class="login__title">Shaffi's Backery</h1>
+        <p class="login__subtitle">Admin access</p>
+
+        <p class="form-error is-hidden" id="login-error" role="alert"></p>
+
+        <form id="login-form" novalidate>
+          <div class="field" style="text-align: left">
+            <label for="login-password">Password</label>
+            <input id="login-password" type="password" autocomplete="current-password" required />
+          </div>
+          <button class="btn btn--primary" type="submit" id="login-submit" style="width: 100%">
+            Sign in
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ---------- App ---------- -->
+    <div id="app-view" class="is-hidden">
+      <header class="app-header">
+        <div class="app-header__inner">
+          <div class="app-brand">
+            <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+              <path d="M16 6c1.4 1.9 1.4 4 0 5.9C14.6 10 14.6 7.9 16 6Z" fill="currentColor" />
+              <path
+                d="M16 12.2c3.9 0 7 3.1 7 7 0 5-4.9 9.6-7 9.6s-7-4.6-7-9.6c0-3.9 3.1-7 7-7Z"
+                stroke="currentColor"
+                stroke-width="1.6"
+              />
+              <path d="M9.2 17.6h13.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+            </svg>
+            <span class="app-brand__text">
+              <span class="app-brand__name">Shaffi's Backery</span>
+              <span class="app-brand__tag">Menu Admin</span>
+            </span>
+          </div>
+          <button class="btn btn--ghost btn--sm" type="button" id="logout">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+              <path d="M10 8l-4 4 4 4M6 12h9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            Sign out
+          </button>
+        </div>
+      </header>
+
+      <nav class="tabs" aria-label="Admin sections">
+        <div class="tabs__inner" role="tablist">
+          <button class="tab" role="tab" aria-selected="true" data-tab="overview">Overview</button>
+          <button class="tab" role="tab" aria-selected="false" data-tab="menu">Menu</button>
+          <button class="tab" role="tab" aria-selected="false" data-tab="reviews">Reviews</button>
+          <button class="tab" role="tab" aria-selected="false" data-tab="ads">Offers</button>
+        </div>
+      </nav>
+
+      <main class="app-main">
+        <!-- Overview -->
+        <section class="panel is-active" id="panel-overview" role="tabpanel" aria-label="Overview">
+          <div class="section-head">
+            <h2>Overview</h2>
+            <button class="btn btn--ghost btn--sm" type="button" id="refresh-overview">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v4h-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              Refresh
+            </button>
+          </div>
+
+          <div class="stats" id="stats"></div>
+
+          <div class="section-head" style="margin-top: var(--s-6)">
+            <h2 style="font-size: 1.3rem">Recently updated</h2>
+          </div>
+          <div class="card">
+            <ul class="list" id="recent-list"></ul>
+          </div>
+        </section>
+
+        <!-- Menu -->
+        <section class="panel" id="panel-menu" role="tabpanel" aria-label="Menu">
+          <div class="section-head">
+            <h2>Menu</h2>
+            <button class="btn btn--primary btn--sm" type="button" id="new-dish">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+              </svg>
+              New dish
+            </button>
+          </div>
+
+          <div class="menu-grid">
+            <div class="card">
+              <div class="row">
+                <p class="row__title" style="flex: 1">Sections</p>
+                <button class="btn btn--ghost btn--sm" type="button" id="new-section">Add</button>
+              </div>
+              <ul class="list" id="sections-list"></ul>
+            </div>
+
+            <div class="dish-groups" id="dishes-groups"></div>
+          </div>
+        </section>
+
+        <!-- Reviews -->
+        <section class="panel" id="panel-reviews" role="tabpanel" aria-label="Reviews">
+          <div class="section-head">
+            <h2>Reviews</h2>
+            <button class="btn btn--ghost btn--sm" type="button" id="refresh-reviews">Refresh</button>
+          </div>
+          <div class="card">
+            <ul class="list reviews-list" id="reviews-list"></ul>
+          </div>
+        </section>
+
+        <!-- Ads -->
+        <section class="panel" id="panel-ads" role="tabpanel" aria-label="Offers">
+          <div class="section-head">
+            <h2>Offers &amp; announcements</h2>
+            <button class="btn btn--primary btn--sm" type="button" id="new-ad">Upload offer</button>
+          </div>
+          <div class="ads-grid" id="ads-grid"></div>
+        </section>
+      </main>
+    </div>
+
+    <!-- ---------- Dish dialog ---------- -->
+    <dialog class="dialog" id="dish-dialog" aria-labelledby="dish-dialog-title">
+      <div class="dialog__inner">
+        <div class="dialog__head">
+          <h2 class="dialog__title" id="dish-dialog-title">New dish</h2>
+          <button class="dialog__close" type="button" id="dish-dialog-close" aria-label="Close">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+            </svg>
+          </button>
+        </div>
+
+        <p class="form-error is-hidden" id="dish-error" role="alert"></p>
+
+        <form id="dish-form" novalidate>
+          <input type="hidden" id="dish-id" />
+          <div class="field">
+            <label for="dish-name">Name</label>
+            <input id="dish-name" type="text" maxlength="80" required />
+            <span class="field__error" id="dish-name-error"></span>
+          </div>
+          <div class="field">
+            <label for="dish-description">Description</label>
+            <textarea id="dish-description" maxlength="600"></textarea>
+            <span class="field__error" id="dish-description-error"></span>
+          </div>
+          <div class="field-row field-row--2">
+            <div class="field">
+              <label for="dish-price">Price</label>
+              <input id="dish-price" type="number" min="0" step="0.01" inputmode="decimal" required />
+              <span class="field__error" id="dish-price-error"></span>
+            </div>
+            <div class="field">
+              <label for="dish-section">Section</label>
+              <select id="dish-section" required></select>
+              <span class="field__error" id="dish-section-error"></span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="dish-diet">Type</label>
+            <select id="dish-diet">
+              <option value="veg">Veg</option>
+              <option value="non_veg">Non-veg</option>
+              <option value="none">None</option>
+            </select>
+            <span class="field__error" id="dish-diet-error"></span>
+          </div>
+          <div class="field">
+            <label for="dish-image">Photo</label>
+            <input id="dish-image" type="file" accept="image/png,image/jpeg,image/webp,image/avif" />
+            <div class="image-preview" id="dish-image-preview">
+              <img id="dish-image-thumb" alt="" hidden />
+              <span class="image-preview__info" id="dish-image-info">No photo yet. JPEG, PNG, WebP or AVIF up to 3 MB.</span>
+            </div>
+            <span class="field__error" id="dish-image-error"></span>
+            <label class="switch" style="margin-top: var(--s-2)">
+              <input type="checkbox" id="dish-remove-image" />
+              Remove current photo
+            </label>
+          </div>
+          <div class="field-row field-row--2">
+            <label class="switch">
+              <input type="checkbox" id="dish-available" checked />
+              Available
+            </label>
+            <label class="switch">
+              <input type="checkbox" id="dish-popular" />
+              Popular
+            </label>
+          </div>
+
+          <div class="dialog__actions">
+            <button class="btn btn--ghost" type="button" id="dish-cancel">Cancel</button>
+            <button class="btn btn--primary" type="submit" id="dish-submit">Save dish</button>
+          </div>
+        </form>
+      </div>
+    </dialog>
+
+    <!-- ---------- Ad dialog ---------- -->
+    <dialog class="dialog" id="ad-dialog" aria-labelledby="ad-dialog-title">
+      <div class="dialog__inner">
+        <div class="dialog__head">
+          <h2 class="dialog__title" id="ad-dialog-title">Upload offer</h2>
+          <button class="dialog__close" type="button" id="ad-dialog-close" aria-label="Close">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+            </svg>
+          </button>
+        </div>
+        <p class="form-error is-hidden" id="ad-error" role="alert"></p>
+        <form id="ad-form" novalidate>
+          <div class="field">
+            <label for="ad-image">Image</label>
+            <input id="ad-image" type="file" accept="image/png,image/jpeg,image/webp,image/avif" required />
+            <span class="field__error" id="ad-image-error"></span>
+          </div>
+          <div class="dialog__actions">
+            <button class="btn btn--ghost" type="button" id="ad-cancel">Cancel</button>
+            <button class="btn btn--primary" type="submit" id="ad-submit">Upload</button>
+          </div>
+        </form>
+      </div>
+    </dialog>
+
+    <!-- ---------- Confirm dialog ---------- -->
+    <dialog class="dialog" id="confirm-dialog" aria-labelledby="confirm-title">
+      <div class="dialog__inner">
+        <div class="dialog__head">
+          <h2 class="dialog__title" id="confirm-title">Are you sure?</h2>
+        </div>
+        <p class="confirm-body" id="confirm-message"></p>
+        <div class="dialog__actions">
+          <button class="btn btn--ghost" type="button" id="confirm-cancel">Cancel</button>
+          <button class="btn btn--danger" type="button" id="confirm-ok">Confirm</button>
+        </div>
+      </div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <template id="stat-template">
+      <div class="card stat">
+        <p class="stat__label"></p>
+        <p class="stat__value"></p>
+      </div>
+    </template>
+
+    <template id="section-template">
+      <li class="row section-item">
+        <div class="reorder">
+          <button type="button" data-move="up" aria-label="Move up">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 15 6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </button>
+          <button type="button" data-move="down" aria-label="Move down">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </button>
+        </div>
+        <div class="row__main">
+          <p class="row__title section-item__name"></p>
+          <p class="row__meta"></p>
+        </div>
+        <div class="row__actions">
+          <button class="icon-btn" type="button" data-action="rename" aria-label="Rename section">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17v3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" /></svg>
+          </button>
+          <button class="icon-btn" type="button" data-action="delete" aria-label="Delete section">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </button>
+        </div>
+      </li>
+    </template>
+
+    <template id="dish-row-template">
+      <li class="row dish-item">
+        <img class="dish-thumb" alt="" hidden />
+        <span class="dish-thumb--empty">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 16l4-5 3 3 4-6 5 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.5" /></svg>
+        </span>
+        <div class="row__main">
+          <p class="row__title dish-item__name"></p>
+          <p class="row__meta dish-item__meta"></p>
+        </div>
+        <div class="row__actions">
+          <button class="btn btn--ghost btn--sm" type="button" data-action="edit">Edit</button>
+          <button class="icon-btn" type="button" data-action="delete" aria-label="Delete dish">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </button>
+        </div>
+      </li>
+    </template>
+
+    <template id="dish-group-template">
+      <section class="dish-group">
+        <div class="dish-group__head">
+          <h3 class="dish-group__title"></h3>
+          <span class="dish-group__count"></span>
+          <button class="btn btn--ghost btn--sm dish-group__add" type="button">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+            Add dish
+          </button>
+        </div>
+        <div class="card">
+          <ul class="list dish-group__list"></ul>
+        </div>
+      </section>
+    </template>
+
+    <template id="review-template">
+      <li class="row review-item">
+        <div class="row__main">
+          <p class="row__title review-item__author"></p>
+          <p class="stars review-item__stars"></p>
+          <p class="quote review-item__quote"></p>
+        </div>
+        <div class="row__actions">
+          <button class="icon-btn" type="button" data-action="delete" aria-label="Delete review">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </button>
+        </div>
+      </li>
+    </template>
+
+    <template id="ad-template">
+      <div class="card ad-card">
+        <img alt="Offer" loading="lazy" />
+        <div class="ad-card__body">
+          <label class="switch">
+            <input type="checkbox" class="ad-card__toggle" />
+            Active
+          </label>
+          <button class="icon-btn" type="button" data-action="delete" aria-label="Delete offer">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </button>
+        </div>
+      </div>
+    </template>
+
+    <script src="/js/admin.js" defer></script>
+  </body>
+</html>
