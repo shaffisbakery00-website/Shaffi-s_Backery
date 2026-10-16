@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "sharrifs-backery",
   "version": "1.0.0",
   "private": true,
@@ -17,7 +17,6 @@
     "@supabase/supabase-js": "^2.118.0",
     "cookie-parser": "^1.4.7",
     "express": "^5.3.0",
-    "multer": "^2.4.0",
-    "serverless-http": "^4.0.0"
+    "multer": "^2.4.0"
   }
 }
