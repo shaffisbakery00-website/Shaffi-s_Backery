@@ -1,7 +1,7 @@
 'use strict';
 
 (function () {
-  const STATE = { menu: [], reviews: [], ads: [], query: '', filter: 'all', menuSig: '', reviewSig: '', adSig: '' };
+  const STATE = { menu: [], ads: [], query: '', filter: 'all', menuSig: '', adSig: '' };
 
   const els = {
     menu: document.getElementById('menu'),
@@ -11,17 +11,7 @@
     search: document.getElementById('menu-search'),
     offers: document.getElementById('offers'),
     offersTrack: document.getElementById('offers-track'),
-    reviewsTrack: document.getElementById('reviews-track'),
-    reviewsEmpty: document.getElementById('reviews-empty'),
-    dialog: document.getElementById('review-dialog'),
-    form: document.getElementById('review-form'),
-    error: document.getElementById('review-error'),
-    stars: document.getElementById('rating-stars'),
-    toast: document.getElementById('toast'),
   };
-
-  const STAR =
-    '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3.6l2.5 5.14 5.66.82-4.08 3.98.96 5.64L12 16.53l-5.04 2.65.96-5.64L3.84 9.56l5.66-.82L12 3.6Z"/></svg>';
 
   const CURRENCY = (document.body.dataset.currency || '').trim();
 
@@ -37,13 +27,6 @@
 
   function show(node, visible) {
     if (node) node.classList.toggle('is-hidden', !visible);
-  }
-
-  function toast(message) {
-    els.toast.textContent = message;
-    els.toast.classList.add('is-visible');
-    window.clearTimeout(toast._t);
-    toast._t = window.setTimeout(() => els.toast.classList.remove('is-visible'), 3200);
   }
 
   async function getJSON(url) {
@@ -221,17 +204,6 @@
 
   /* --------------------------- Marquee --------------------------- */
 
-  function fillMarquee(track, items, build, loop = true) {
-    track.textContent = '';
-    if (!items.length) return;
-    for (const item of items) track.appendChild(build(item));
-    if (!loop) return;
-    // Duplicate for a seamless loop; hide duplicates from assistive tech.
-    const clone = track.cloneNode(true);
-    for (const child of clone.children) child.setAttribute('aria-hidden', 'true');
-    while (clone.firstChild) track.appendChild(clone.firstChild);
-  }
-
   function buildOffer(ad) {
     const node = document.getElementById('offer-template').content.firstElementChild.cloneNode(true);
     const img = node.querySelector('img');
@@ -244,20 +216,6 @@
     } else {
       desc.remove();
     }
-    return node;
-  }
-
-  function buildReview(review) {
-    const node = document.getElementById('review-template').content.firstElementChild.cloneNode(true);
-    const stars = node.querySelector('.review-card__stars');
-    for (let i = 1; i <= 5; i += 1) {
-      const s = document.createElement('span');
-      s.innerHTML = STAR;
-      if (i > review.rating) s.querySelector('svg').classList.add('off');
-      stars.appendChild(s);
-    }
-    node.querySelector('.review-card__quote').textContent = `“${review.content}”`;
-    node.querySelector('.review-card__author').textContent = review.author_name;
     return node;
   }
 
@@ -355,12 +313,6 @@
     viewport.addEventListener('pointerleave', startSlider);
   }
 
-  function renderReviews() {
-    show(els.reviewsEmpty, STATE.reviews.length === 0);
-    document.getElementById('reviews-marquee').classList.toggle('is-hidden', STATE.reviews.length === 0);
-    fillMarquee(els.reviewsTrack, STATE.reviews, buildReview);
-  }
-
   /* --------------------------- Loading --------------------------- */
 
   async function loadMenu() {
@@ -381,19 +333,6 @@
     }
   }
 
-  async function loadReviews() {
-    try {
-      const data = await getJSON('/api/reviews');
-      const sig = JSON.stringify(data);
-      if (sig === STATE.reviewSig) return;
-      STATE.reviewSig = sig;
-      STATE.reviews = data;
-      renderReviews();
-    } catch (_) {
-      /* leave previous content */
-    }
-  }
-
   async function loadAds() {
     try {
       const data = await getJSON('/api/ads');
@@ -409,7 +348,6 @@
 
   function refreshAll() {
     loadMenu();
-    loadReviews();
     loadAds();
   }
 
@@ -417,126 +355,6 @@
     window.clearInterval(startPolling._t);
     if (document.visibilityState !== 'visible') return;
     startPolling._t = window.setInterval(refreshAll, 3000);
-  }
-
-  /* ----------------------- Review dialog ----------------------- */
-
-  let rating = 0;
-
-  function buildStars() {
-    els.stars.textContent = '';
-    for (let i = 1; i <= 5; i += 1) {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'stars__item';
-      btn.setAttribute('role', 'radio');
-      btn.setAttribute('aria-checked', 'false');
-      btn.setAttribute('aria-label', `${i} star${i > 1 ? 's' : ''}`);
-      btn.dataset.value = String(i);
-      btn.innerHTML = STAR;
-      btn.addEventListener('click', () => setRating(i));
-      btn.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
-          e.preventDefault();
-          setRating(Math.min(5, rating + 1));
-        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
-          e.preventDefault();
-          setRating(Math.max(1, rating - 1));
-        }
-      });
-      els.stars.appendChild(btn);
-    }
-  }
-
-  function setRating(value) {
-    rating = value;
-    for (const btn of els.stars.children) {
-      const on = Number(btn.dataset.value) <= value;
-      btn.classList.toggle('is-on', on);
-      btn.setAttribute('aria-checked', String(Number(btn.dataset.value) === value));
-    }
-    document.getElementById('rating-error').textContent = '';
-  }
-
-  function openDialog() {
-    els.form.reset();
-    setRating(0);
-    els.error.classList.add('is-hidden');
-    els.error.textContent = '';
-    for (const id of ['rating-error', 'name-error', 'content-error']) {
-      document.getElementById(id).textContent = '';
-    }
-    els.dialog.showModal();
-    document.getElementById('review-name').focus();
-  }
-
-  function closeDialog() {
-    els.dialog.close();
-  }
-
-  function showErrors(errors) {
-    const map = { rating: 'rating-error', author_name: 'name-error', content: 'content-error' };
-    for (const [field, message] of Object.entries(errors || {})) {
-      const id = map[field];
-      if (id) document.getElementById(id).textContent = message;
-    }
-  }
-
-  async function submitReview(event) {
-    event.preventDefault();
-    els.error.classList.add('is-hidden');
-    for (const id of ['rating-error', 'name-error', 'content-error']) {
-      document.getElementById(id).textContent = '';
-    }
-
-    const payload = {
-      author_name: document.getElementById('review-name').value,
-      content: document.getElementById('review-text').value,
-      rating,
-      website: document.getElementById('review-website').value,
-    };
-
-    const button = document.getElementById('review-submit');
-    button.disabled = true;
-    button.textContent = 'Sending…';
-
-    try {
-      const res = await fetch('/api/reviews', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (res.status === 201) {
-        closeDialog();
-        toast('Thank you — your review has been shared.');
-        await loadReviews();
-        return;
-      }
-
-      if (res.status === 400) {
-        const data = await res.json().catch(() => ({}));
-        showErrors(data.errors);
-        els.error.textContent = data.error || 'Please check the highlighted fields.';
-        els.error.classList.remove('is-hidden');
-        return;
-      }
-
-      if (res.status === 429) {
-        els.error.textContent = 'You have shared a few reviews already. Please try again later.';
-        els.error.classList.remove('is-hidden');
-        return;
-      }
-
-      els.error.textContent = 'Something went wrong. Please try again.';
-      els.error.classList.remove('is-hidden');
-    } catch (_) {
-      els.error.textContent = 'Network error. Please check your connection and try again.';
-      els.error.classList.remove('is-hidden');
-    } finally {
-      button.disabled = false;
-      button.textContent = 'Send review';
-    }
   }
 
   /* --------------------------- Wire up --------------------------- */
@@ -551,20 +369,6 @@
     }, 120);
   });
 
-  for (const id of ['open-review', 'open-review2']) {
-    const trigger = document.getElementById(id);
-    if (trigger) trigger.addEventListener('click', openDialog);
-  }
-  document.getElementById('close-review').addEventListener('click', closeDialog);
-  els.dialog.addEventListener('cancel', (e) => {
-    e.preventDefault();
-    closeDialog();
-  });
-  els.dialog.addEventListener('click', (e) => {
-    if (e.target === els.dialog) closeDialog();
-  });
-  els.form.addEventListener('submit', submitReview);
-
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
       refreshAll();
@@ -576,7 +380,6 @@
   });
   window.addEventListener('focus', refreshAll);
 
-  buildStars();
   wireSliderSwipe();
   refreshAll();
   startPolling();

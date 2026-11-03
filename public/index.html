@@ -47,10 +47,6 @@
           <div class="slider__dots" id="offers-dots" role="tablist" aria-label="Choose an offer"></div>
         </div>
       </section>
-
-      <div class="marquee marquee--reviews" id="reviews-marquee">
-        <div class="marquee__track" id="reviews-track"></div>
-      </div>
     </header>
 
     <div class="toolbar">
@@ -110,50 +106,6 @@
       <button class="btn btn--primary btn--small" type="button" id="open-review">Share a review</button>
     </aside>
 
-    <dialog class="dialog" id="review-dialog" aria-labelledby="review-dialog-title">
-      <div class="dialog__inner">
-        <div class="dialog__head">
-          <h2 class="dialog__title" id="review-dialog-title">Share your review</h2>
-          <button class="dialog__close" type="button" id="close-review" aria-label="Close">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
-            </svg>
-          </button>
-        </div>
-
-        <p class="form-error is-hidden" id="review-error" role="alert"></p>
-
-        <form id="review-form" novalidate>
-          <div class="field">
-            <span id="rating-label">Your rating</span>
-            <div class="stars" role="radiogroup" aria-labelledby="rating-label" id="rating-stars"></div>
-            <span class="field__error" id="rating-error"></span>
-          </div>
-
-          <div class="field">
-            <label for="review-name">Your name</label>
-            <input id="review-name" name="author_name" type="text" maxlength="40" required />
-            <span class="field__error" id="name-error"></span>
-          </div>
-
-          <div class="field">
-            <label for="review-text">Your review</label>
-            <textarea id="review-text" name="content" maxlength="500" required></textarea>
-            <span class="field__error" id="content-error"></span>
-          </div>
-
-          <div class="honeypot" aria-hidden="true">
-            <label for="review-website">Website</label>
-            <input id="review-website" name="website" type="text" tabindex="-1" autocomplete="off" />
-          </div>
-
-          <button class="btn btn--primary" type="submit" id="review-submit">Send review</button>
-        </form>
-      </div>
-    </dialog>
-
-    <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
     <template id="dish-template">
       <li class="dish">
         <div class="dish__media">
@@ -191,14 +143,6 @@
           <p class="offer__desc"></p>
         </div>
       </div>
-    </template>
-
-    <template id="review-template">
-      <figure class="review-card">
-        <div class="review-card__stars" aria-hidden="true"></div>
-        <blockquote class="review-card__quote"></blockquote>
-        <figcaption class="review-card__author"></figcaption>
-      </figure>
     </template>
 
     <script src="/js/customer.js" defer></script>
