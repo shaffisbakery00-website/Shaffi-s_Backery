@@ -76,7 +76,6 @@ test('every admin mutation endpoint requires a session', async () => {
     ['DELETE', '/api/admin/sections/00000000-0000-0000-0000-000000000000'],
     ['GET', '/api/admin/stats'],
     ['GET', '/api/admin/dishes'],
-    ['DELETE', '/api/admin/reviews/00000000-0000-0000-0000-000000000000'],
     ['POST', '/api/admin/ads'],
     ['DELETE', '/api/admin/ads/00000000-0000-0000-0000-000000000000'],
   ];
@@ -98,7 +97,7 @@ test('cross-origin admin mutation is rejected even with a valid session', async 
 });
 
 test('public endpoints need no authentication', async () => {
-  for (const path of ['/api/menu', '/api/reviews', '/api/ads']) {
+  for (const path of ['/api/menu', '/api/ads']) {
     const res = await request(base, path);
     assert.equal(res.status, 200, `${path} should be public`);
   }

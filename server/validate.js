@@ -140,28 +140,6 @@ function sectionInput(body = {}) {
   return { ok: true, value: { name: name.trim() } };
 }
 
-function reviewInput(body = {}) {
-  const errors = {};
-
-  const author_name = trimmed(body.author_name);
-  if (typeof author_name !== 'string' || author_name.length < 2 || author_name.length > 40) {
-    errors.author_name = 'Please enter a name (2–40 characters).';
-  }
-
-  const content = trimmed(body.content);
-  if (typeof content !== 'string' || content.length < 5 || content.length > 500) {
-    errors.content = 'Please write a review between 5 and 500 characters.';
-  }
-
-  const rating = typeof body.rating === 'string' ? Number(body.rating) : body.rating;
-  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
-    errors.rating = 'Please choose a star rating from 1 to 5.';
-  }
-
-  if (Object.keys(errors).length) return { ok: false, errors };
-  return { ok: true, value: { author_name: author_name.trim(), content: content.trim(), rating } };
-}
-
 function directionInput(body = {}) {
   const direction = trimmed(body.direction);
   if (direction !== 'up' && direction !== 'down') {
@@ -190,7 +168,6 @@ module.exports = {
   toggleInput,
   adInput,
   sectionInput,
-  reviewInput,
   directionInput,
   reassignInput,
 };

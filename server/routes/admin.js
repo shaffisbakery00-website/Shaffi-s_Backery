@@ -40,32 +40,6 @@ router.get('/stats', async (req, res) => {
   });
 });
 
-// GET /api/admin/reviews — all reviews, newest first.
-router.get('/reviews', async (req, res) => {
-  const { data, error } = await supabase
-    .from('reviews')
-    .select('id, author_name, content, rating, created_at')
-    .order('created_at', { ascending: false });
-  if (error) throw httpError(502, 'Could not load reviews.');
-  res.json(data);
-});
-
-// DELETE /api/admin/reviews/:id
-router.delete('/reviews/:id', async (req, res) => {
-  if (!validate.isUuid(req.params.id)) throw httpError(404, 'Review not found.');
-
-  const { data, error } = await supabase
-    .from('reviews')
-    .delete()
-    .eq('id', req.params.id)
-    .select('id')
-    .maybeSingle();
-  if (error) throw httpError(502, 'Could not delete the review.');
-  if (!data) throw httpError(404, 'Review not found.');
-
-  res.json({ success: true });
-});
-
 // GET /api/admin/ads — all ads including inactive.
 router.get('/ads', async (req, res) => {
   const { data, error } = await supabase

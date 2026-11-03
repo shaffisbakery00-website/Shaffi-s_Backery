@@ -54,18 +54,3 @@ test('a successful login clears the failure window for that IP', async () => {
 
   await supabase.from('rate_events').delete().eq('ip', ip);
 });
-
-test('review submissions are rate limited after 3 from the same IP', async () => {
-  const ip = randomIp();
-  const body = { author_name: 'Rate Tester', content: 'Lovely cake, will return.', rating: 5 };
-  const results = [];
-  for (let i = 0; i < 4; i += 1) {
-    const res = await request(base, '/api/reviews', { method: 'POST', body, ip });
-    results.push(res.status);
-  }
-  assert.deepEqual(results.slice(0, 3), [201, 201, 201]);
-  assert.equal(results[3], 429);
-
-  await supabase.from('reviews').delete().eq('author_name', 'Rate Tester');
-  await supabase.from('rate_events').delete().eq('ip', ip);
-});
