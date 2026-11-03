@@ -43,6 +43,7 @@ test('the admin page is served and loads its own bundle', async () => {
   assert.match(res.headers.get('content-type') || '', /text\/html/);
   assert.match(res.data, /Admin access/);
   assert.match(res.data, /src="\/js\/admin\.js"/);
+  assert.doesNotMatch(res.data, /data-tab="reviews"|panel-reviews|review-template/);
 
   const scripts = res.data.match(/<script\b[^>]*>/gi) || [];
   for (const tag of scripts) {

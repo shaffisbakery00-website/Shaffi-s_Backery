@@ -6,7 +6,6 @@
   const STATE = {
     sections: [],
     dishes: [],
-    reviews: [],
     ads: [],
     filters: { q: '', section_id: '', availability: '' },
     activeTab: 'overview',
@@ -757,51 +756,6 @@
     }
   }
 
-  /* --------------------------- Reviews --------------------------- */
-
-  async function loadReviews() {
-    const { data } = await api('/api/admin/reviews');
-    STATE.reviews = data;
-    renderReviews();
-  }
-
-  function renderReviews() {
-    const list = $('reviews-list');
-    list.textContent = '';
-    if (!STATE.reviews.length) {
-      list.appendChild(emptyNote('No reviews yet.'));
-      return;
-    }
-    for (const review of STATE.reviews) {
-      const node = $('review-template').content.firstElementChild.cloneNode(true);
-      node.dataset.id = review.id;
-      node.querySelector('.review-item__author').textContent = review.author_name;
-      const stars = node.querySelector('.review-item__stars');
-      let starText = '';
-      for (let i = 1; i <= 5; i += 1) starText += i <= review.rating ? '★' : '☆';
-      stars.textContent = starText;
-      node.querySelector('.review-item__quote').textContent = review.content;
-      node.querySelector('[data-action="delete"]').addEventListener('click', () => deleteReview(review));
-      list.appendChild(node);
-    }
-  }
-
-  async function deleteReview(review) {
-    const ok = await confirmDialog(
-      'Delete review',
-      `Delete the review by “${review.author_name}”? It will disappear from the live menu.`,
-      'Delete'
-    );
-    if (!ok) return;
-    const { status, data } = await api(`/api/admin/reviews/${review.id}`, { method: 'DELETE' });
-    if (status === 200) {
-      toast('Review deleted.');
-      await loadReviews();
-    } else {
-      toast(data.error || 'Could not delete the review.', 'error');
-    }
-  }
-
   /* --------------------------- Ads --------------------------- */
 
   async function loadAds() {
@@ -1129,7 +1083,6 @@
     if (tab === 'menu') {
       loadSections().then(loadDishes);
     }
-    if (tab === 'reviews') loadReviews();
     if (tab === 'ads') loadAds();
   }
 
@@ -1190,7 +1143,6 @@
     }
 
     $('refresh-overview').addEventListener('click', loadOverview);
-    $('refresh-reviews').addEventListener('click', loadReviews);
     $('new-section').addEventListener('click', addSection);
     $('new-dish').addEventListener('click', () => openDishDialog(null));
     $('new-ad').addEventListener('click', () => openAdDialog(null));

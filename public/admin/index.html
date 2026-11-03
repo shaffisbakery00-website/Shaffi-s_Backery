@@ -98,7 +98,6 @@
         <div class="tabs__inner" role="tablist">
           <button class="tab" role="tab" aria-selected="true" data-tab="overview">Overview</button>
           <button class="tab" role="tab" aria-selected="false" data-tab="menu">Menu</button>
-          <button class="tab" role="tab" aria-selected="false" data-tab="reviews">Reviews</button>
           <button class="tab" role="tab" aria-selected="false" data-tab="ads">Offers</button>
         </div>
       </nav>
@@ -148,17 +147,6 @@
             </div>
 
             <div class="dish-groups" id="dishes-groups"></div>
-          </div>
-        </section>
-
-        <!-- Reviews -->
-        <section class="panel" id="panel-reviews" role="tabpanel" aria-label="Reviews">
-          <div class="section-head">
-            <h2>Reviews</h2>
-            <button class="btn btn--ghost btn--sm" type="button" id="refresh-reviews">Refresh</button>
-          </div>
-          <div class="card">
-            <ul class="list reviews-list" id="reviews-list"></ul>
           </div>
         </section>
 
@@ -395,21 +383,6 @@
           <ul class="list dish-group__list"></ul>
         </div>
       </section>
-    </template>
-
-    <template id="review-template">
-      <li class="row review-item">
-        <div class="row__main">
-          <p class="row__title review-item__author"></p>
-          <p class="stars review-item__stars"></p>
-          <p class="quote review-item__quote"></p>
-        </div>
-        <div class="row__actions">
-          <button class="icon-btn" type="button" data-action="delete" aria-label="Delete review">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
-          </button>
-        </div>
-      </li>
     </template>
 
     <template id="ad-template">

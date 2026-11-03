@@ -710,25 +710,6 @@
 
 /* ---------- Reviews & ads ---------- */
 
-.reviews-list .review-item {
-  align-items: flex-start;
-}
-
-.stars {
-  color: var(--gold);
-  letter-spacing: 2px;
-  font-size: 0.9375rem;
-}
-
-.stars .off {
-  color: var(--line-strong);
-}
-
-.quote {
-  margin: var(--s-1) 0 0;
-  color: var(--ink);
-}
-
 .ads-grid {
   display: grid;
   gap: var(--s-3);
