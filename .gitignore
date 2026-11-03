@@ -6,3 +6,4 @@ node_modules/
 uploads/
 .DS_Store
 .vercel
+.playwright-cli/
