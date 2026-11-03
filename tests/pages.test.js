@@ -25,6 +25,10 @@ test('the customer page is served with the expected CSP and no inline scripts', 
   assert.match(res.data, /Shaffi's Bakery/);
   assert.match(res.data, /src="\/js\/customer\.js"/);
   assert.doesNotMatch(res.data, /review-dialog|reviews-marquee|review-template|review-form/);
+  assert.match(
+    res.data,
+    /href="https:\/\/search\.google\.com\/local\/writereview\?placeid=ChIJRQH83EC9qDsRi1TrNUR8_nI"/
+  );
 
   const scripts = res.data.match(/<script\b[^>]*>/gi) || [];
   assert.ok(scripts.length > 0, 'page should reference its script');
